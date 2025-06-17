@@ -84,7 +84,18 @@ function App() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      // Ignore if typing in input or textarea
+      if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+      // Number keys 0-9: seek to 0/10, 1/10, ..., 9/10 of duration
+      if (e.key >= '0' && e.key <= '9' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const video = videoRef.current;
+        if (video && video.duration) {
+          const num = parseInt(e.key, 10);
+          video.currentTime = (video.duration * num) / 10;
+          e.preventDefault();
+        }
+        return;
+      }
       switch (e.key.toLowerCase()) {
         case ' ': // Space
         case 'k':
@@ -184,6 +195,7 @@ function App() {
           <li><b>F</b>: Expand to Window / Fullscreen</li>
           <li><b>Shift + .</b> ({'>'}): Next Speed</li>
           <li><b>Shift + ,</b> ({'<' }): Previous Speed</li>
+          <li><b>0-9</b>: Jump to 0%, 10%, ..., 90% of video</li>
         </ul>
         <div style={{marginTop:8}}><b>Current Speed: {playbackRate}x</b></div>
       </div>
